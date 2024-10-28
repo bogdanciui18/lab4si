@@ -1,0 +1,73 @@
+using System;
+using System.Diagnostics;
+using System.Security.Cryptography;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+
+public class RSABenchmark
+{
+    public static void Main()
+    {
+        int[] keySizes = { 1024, 2048, 3072, 4096 };
+        int count = 100;
+        byte[] plain = new byte[20];
+
+        foreach (int keySize in keySizes)
+        {
+            Console.WriteLine("\nDimensiunea pentru key: {keySize} bits");
+            RSACryptoServiceProvider myrsa;
+            Stopwatch swatch = new Stopwatch();
+            int size;
+
+            switch (keySize)
+            {
+                case 1024:
+                case 2048:
+                case 3072:
+                case 4096:
+
+                    swatch.Start();
+                    for (int i = 0; i <= count; i++)
+                    {
+                        myrsa = new RSACryptoServiceProvider(keySize);
+                        size = myrsa.KeySize;
+                    }
+                    swatch.Stop();
+                    Console.WriteLine("Generation time at " + keySize + " bit: " + (swatch.ElapsedTicks / (10 * count)).ToString() + " ms");
+
+                    
+                    myrsa = new RSACryptoServiceProvider(keySize);
+
+                    
+                    byte[] ciphertext = myrsa.Encrypt(plain, true);
+                    swatch.Reset();
+                    swatch.Start();
+                    for (int i = 0; i < count; i++)
+                    {
+                        ciphertext = myrsa.Encrypt(plain, true);
+                    }
+                    swatch.Stop();
+                    Console.WriteLine("Encryption time at " + keySize + " bit: " + (swatch.ElapsedTicks / (10 * count)).ToString() + " ms");
+
+                    
+  
+                    swatch.Reset();
+                    swatch.Start();
+                    for (int i = 0; i < count; i++)
+                    {
+                        plain = myrsa.Decrypt(ciphertext, true);
+                    }
+                    swatch.Stop();
+                    Console.WriteLine("Decryption time at " + keySize + " bit: " + (swatch.ElapsedTicks / ((double) count)).ToString() + " ms");
+                    break;
+
+                default:
+                    Console.WriteLine("Dimensiune cheie gresita");
+                    break;
+            }
+        }
+
+        Console.ReadKey();
+    }
+} 
